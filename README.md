@@ -1,16 +1,73 @@
-## Hi there 👋
+# SloyArt — многослойные картины (сайт на GitHub Pages)
 
-<!--
-**SloyArt/SloyArt** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Статический сайт: HTML + CSS + JavaScript, без сервера и баз данных.
+Откройте `index.html` двойным кликом, чтобы посмотреть сайт на своём компьютере.
 
-Here are some ideas to get you started:
+## 1. Как выложить на GitHub Pages
+1. Создайте публичный репозиторий (например `sloyart` или `ваш-логин.github.io`).
+2. Загрузите **все файлы и папки** из архива (Add file → Upload files), сохранив структуру.
+3. Settings → Pages → Source: *Deploy from a branch*, ветка `main`, папка `/ (root)` → Save.
+4. Через 1–2 минуты сайт откроется по адресу `https://ваш-логин.github.io/sloyart/`.
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+Все ссылки относительные, поэтому сайт работает и в корне домена, и в подпапке репозитория.
+
+## 2. Структура
+```
+index.html, catalog.html, product.html, delivery.html, contacts.html, 404.html
+products/        — готовая страница каждого товара (создаётся скриптом)
+build-products.js — скрипт, который создаёт products/ и sitemap.xml
+css/             — style.css (стили), responsive.css (телефон и планшет)
+js/
+  config.js      — email, валюта, адрес формы, адрес сайта
+  products.js    — ВСЕ ТОВАРЫ (здесь добавляются новые)
+  main.js        — шапка, подвал, форма, карточки
+  product.js     — страница товара, слайдер, увеличение фото
+images/
+  logo/          — логотип
+  hero/          — фон главного экрана
+  products/<id>/ — фотографии каждого товара
+favicon*, apple-touch-icon.png, site.webmanifest — иконки сайта
+```
+
+## 3. Как добавить новый товар
+1. Положите фотографии в папку `images/products/<id>/` (например `images/products/sobaka/1.jpg`, `2.jpg`, `3.jpg`). Лучше 3–5 фото в формате 4:3 (например 1200×900), JPG или WebP.
+2. Откройте `js/products.js`, скопируйте один блок `{ ... }` целиком, вставьте его перед последней `]` (не забудьте запятую между блоками) и измените поля:
+   - `id` — латиницей, без пробелов, уникальный (`sobaka`);
+   - `name`, `price`, `layers` (слоёв), `size`, `weight`, `material`, `frame`, `term`;
+   - `added` — дата `ГГГГ-ММ-ДД` (по ней сортируется каталог);
+   - `popular` — `true`, если картина должна быть в блоке «Популярные» на главной;
+   - `shortDescription`, `description` — тексты;
+   - `images` — пути к фотографиям.
+3. Запустите из папки сайта (нужен [Node.js](https://nodejs.org), ставится один раз):
+   ```
+   node build-products.js
+   ```
+   Скрипт создаст `products/sobaka.html` (страница с нужным заголовком и описанием для поисковиков и мессенджеров), удалит страницы товаров, которых больше нет, и обновит `sitemap.xml`.
+4. Загрузите изменённые файлы на GitHub (Add file → Upload files или git push).
+
+Если скрипт не запускали, ничего не сломается: страница нового товара всё равно откроется через `product.html?id=sobaka`, а адрес `products/sobaka.html` автоматически перенаправит туда (за это отвечает `404.html`). Файлы в `products/` руками не редактируйте, они перезаписываются скриптом.
+
+Как удалить товар: удалите блок из `js/products.js`, папку `images/products/<id>/` и запустите `node build-products.js`.
+
+## 4. Цена, контакты, тексты
+- Цена — поле `price` в `js/products.js`. Валюта — `currency` в `js/config.js`.
+- Email и название — `js/config.js`.
+- Тексты главной, FAQ и цифры в полосе — в `index.html`.
+- Доставка — `delivery.html`, контакты — `contacts.html`.
+- Юридический текст в подвале — в `js/main.js` (переменная `disc`).
+
+## 5. Фон, логотип, иконки
+- Фон главного экрана: замените `images/hero/hero.webp` (лучше широкий кадр 1920×1080, до 300–400 КБ).
+- Логотип: замените `images/logo/logo.png` (с прозрачным фоном).
+- Иконки сайта лежат в корне; в `site.webmanifest` укажите своё название, если нужно.
+
+## 6. Форма «Обратная связь»
+Пока в `js/config.js` поле `orderFormEndpoint` пустое, кнопка «Отправить» открывает письмо на ваш email. Чтобы заявки приходили автоматически, зарегистрируйтесь на formspree.io, создайте форму и вставьте её адрес:
+```
+orderFormEndpoint: "https://formspree.io/f/xxxxabcd",
+```
+
+## 7. Поисковики
+Впишите адрес сайта в `siteUrl` (`js/config.js`), запустите `node build-products.js` — появится `sitemap.xml`. Отправьте его в Google Search Console и Яндекс.Вебмастер.
+
+> Сейчас в `js/products.js` стоят условные цены, размеры, вес и даты, а фото в `images/products/` — нарисованные заглушки (SVG). Замените их на реальные данные и фотографии.
